@@ -10,16 +10,9 @@ enum GemColor {
     Purple,
 }
 
-#[derive(Debug, PartialEq, Clone)]
-struct Gem {
-    color: GemColor,
-    y: u8,
-    x: u8,
-}
-
-impl ToString for Gem {
+impl ToString for GemColor {
     fn to_string(&self) -> String {
-        match self.color {
+        match self {
             GemColor::Blue => "🟦",
             GemColor::Green => "🟩",
             GemColor::Red => "🟥",
@@ -29,10 +22,76 @@ impl ToString for Gem {
     }
 }
 
-const BOARD_LENGTH: i32 = 8;
-const BOARD_HEIGHT: i32 = 8;
+#[derive(Debug, PartialEq, Clone)]
+struct Gem<'r> {
+    color: GemColor,
+    y: i32,
+    x: i32,
+    bottom: Option<&'r Gem<'r>>,
+    top: Option<&'r Gem<'r>>,
+    left: Option<&'r Gem<'r>>,
+    right: Option<&'r Gem<'r>>,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+struct GemAddress<'r> {
+    x: i32,
+    y: i32,
+    gem: Gem<'r>,
+}
+
+impl<'r> Gem<'r> {
+    fn new(x: i32, y: i32, color: GemColor) -> Gem<'r> {
+        Gem {
+            color,
+            y,
+            x,
+            bottom: None,
+            top: None,
+            left: None,
+            right: None,
+        }
+    }
+    fn new_referenced(x: i32, y: i32, color: GemColor, boundaries: (Option<&'r Gem>, Option<&'r Gem>, Option<&'r Gem>, Option<&'r Gem>)) -> Gem<'r> {
+        Gem {
+            color,
+            y,
+            x,
+            top: boundaries.0,
+            right: boundaries.1,
+            bottom: boundaries.2,
+            left: boundaries.3,
+        }
+    }
+}
+
+impl<'r> GemAddress<'r> {
+    fn new(x: i32, y: i32, gem: Gem<'r>) -> GemAddress<'r> {
+        GemAddress {
+            x,
+            y,
+            gem,
+        }
+    }
+}
+
+trait FindByCoords<'r> {
+    fn find_by_address(&'r self, x: i32, y: i32) -> Option<&'r Gem<'r>>;
+}
+
+impl<'r> FindByCoords<'r> for Vec<GemAddress<'r>> {
+    fn find_by_address(&'r self, x: i32, y: i32) -> Option<&'r Gem<'r>> {
+        let gem_address = self.iter().find(|i| i.x == x && i.y == y);
+        if let Some(gem) = gem_address {
+            Some(&gem.gem)
+        } else {
+            None
+        }
+    }
+}
+
+const BOARD_SIZE: i32 = 8;
 const MIN_MATCH_AMOUNT: i32 = 3;
-const MAX_MATCH_AMOUNT: i32 = 8;
 
 fn get_random_color() -> GemColor {
     let rng = rand::thread_rng().gen_range(0..5);
@@ -45,129 +104,69 @@ fn get_random_color() -> GemColor {
     }
 }
 
-fn build_random_gem(x: u8, y: u8) -> Gem {
-    Gem {
-        color: get_random_color(),
-        y: x,
-        x: y,
-    }
+fn get_random_gem<'r>(x: i32, y: i32) -> Gem<'r> {
+    Gem::new(x, y, get_random_color())
 }
 
-fn print_board(board: &[Vec<Gem>]) {
-    for (i, row) in board.iter().enumerate() {
-        print!("{}", i);
-        for gem in row {
-            print!("{}", gem.to_string())
-        }
-        println!()
-    }
-}
+fn generate_board<'r>() -> Vec<GemAddress<'r>> {
+    let mut gem_addresses: Vec<GemAddress> = vec![];
 
-fn check_for_combinations(board: &[Vec<Gem>]) {
-    let transposed_board = transpose_board(board);
-    let mut matches: Vec<&[Gem]> = vec![];
-    let mut horizontal_matches = get_row_matches(board);
-    let mut vertical_matches = get_row_matches(transposed_board.as_slice());
-    matches.append(&mut horizontal_matches);
-    matches.append(&mut vertical_matches);
-    print_found_matches(&matches);
-    let mut sanitized_matches: Vec<&[Gem]> = vec![];
-    for gem_match in matches {
-        if !already_contains_bigger_combination(gem_match, &sanitized_matches) {
-            sanitized_matches.push(gem_match);
+    for row_num in 0..BOARD_SIZE {
+        for col_num in 0..BOARD_SIZE {
+            gem_addresses.push(
+                GemAddress::new(
+                    row_num,
+                    col_num,
+                    get_random_gem(row_num, col_num),
+                )
+            );
         }
     }
-    if !sanitized_matches.is_empty() {
-        println!("Valid, sanitized matches: {}", sanitized_matches.len())
-    } else {
-        println!("There no are matches.")
-    }
-}
 
-fn print_found_matches(matches : &[&[Gem]]) {
-    if matches.is_empty() {
-        return;
-    }
-    println!("Combinations (Pre Sanitization)");
-    for gem_match in matches {
-        print!("{} =>", gem_match.first().unwrap().to_string());
-        for it in 0..gem_match.len() {
-            let gem = gem_match.get(it).unwrap();
-            print!("({},{})", gem.y, gem.x);
-        }
-        println!();
-    }
-}
+    let mut referenced_gem_addresses: Vec<GemAddress> = vec![];
 
-fn get_row_matches(board: &[Vec<Gem>]) -> Vec<&[Gem]> {
-    let mut matches: Vec<&[Gem]> = vec![];
-    let cloned_board = board.clone();
-    for row_num in 0..cloned_board.len() {
-        let row = cloned_board.get(row_num).unwrap();
-        for match_amount in (MIN_MATCH_AMOUNT..(MAX_MATCH_AMOUNT+1)).rev() {
-            for skip in 0..((i32::try_from(row.len()).unwrap() - match_amount)+1) {
-                let sub_list = get_sub_list(skip, skip + match_amount, row);
-                if gems_are_all_identical(sub_list) {
-                    matches.push(sub_list);
-                }
-            }
+    for row_num in 0..BOARD_SIZE {
+        for col_num in 0..BOARD_SIZE {
+            let target_gem = gem_addresses.find_by_address(row_num, col_num).unwrap().to_owned();
+            let top_gem = gem_addresses.find_by_address(row_num + 1, col_num);
+            let right_gem = gem_addresses.find_by_address(row_num, col_num + 1);
+            let bottom_gem = gem_addresses.find_by_address(row_num - 1, col_num);
+            let left_gem = gem_addresses.find_by_address(row_num, col_num - 1);
+            referenced_gem_addresses.push(
+                GemAddress::new(
+                    row_num,
+                    col_num,
+                    Gem::new_referenced(row_num, col_num, target_gem.color, (top_gem, right_gem, bottom_gem, left_gem)),
+                )
+            );
         }
     }
-    matches
-}
 
-fn transpose_board(board: &[Vec<Gem>]) -> Vec<Vec<Gem>> {
-    let mut new_board: Vec<Vec<Gem>> = vec![];
-    for col_num in 0..BOARD_LENGTH {
-        let mut new_row: Vec<Gem> = vec![];
-        for row in board {
-            let gem = row.get(usize::try_from(col_num).unwrap()).unwrap().clone();
-            new_row.push(gem);
-        }
-        new_board.push(new_row);
-    }
-    new_board
+    // cannot return value referencing local variable `gem_addresses`
+    // returns a value referencing data owned by the current function
+    referenced_gem_addresses
 }
-
-fn get_sub_list(from: i32, to: i32, target: &[Gem]) -> &[Gem] {
-    let from_usize = usize::try_from(from).unwrap();
-    let to_usize = usize::try_from(to).unwrap();
-    target[from_usize..to_usize].as_ref()
-}
-
-fn already_contains_bigger_combination(comb: &[Gem], combs: &[&[Gem]]) -> bool {
-    combs.iter().any(|ref_comb|
-        ref_comb.windows(comb.len()).any(|window| comb == window)
-    )
-}
-
-fn gems_are_all_identical(gems: &[Gem]) -> bool {
-    let ref_gem = gems.first().unwrap();
-    gems.iter().all(|gem| gem.color == ref_gem.color)
-}
-
 
 fn main() {
-    let mut board: Vec<Vec<Gem>> = vec![];
-    for row_num in 0..BOARD_HEIGHT {
-        let mut row: Vec<Gem> = vec![];
-        for column_num in 0..BOARD_LENGTH {
-            let gem = build_random_gem(
-                u8::try_from(row_num).unwrap(),
-                u8::try_from(column_num).unwrap(),
-            );
-            row.push(gem);
-        }
-        board.push(row);
-    }
-    println!("Normal board:");
-    print_board(&board);
-    println!("Transposed board:");
-    let transposed_board = transpose_board(&board);
-    print_board(&transposed_board);
-    println!("Combinations:");
     let started_at = Instant::now();
-    check_for_combinations(&board);
+    let board = generate_board();
     let elapsed = started_at.elapsed();
-    println!("Elapsed: {:.2?}", elapsed);
+    println!("Time to generate board: {:.2?}", elapsed);
+    let started_at = Instant::now();
+    print_board(&board);
+    let elapsed = started_at.elapsed();
+    println!("Time to print board: {:.2?}", elapsed);
+    // check_for_combinations(&board);
+}
+
+fn print_board(board: &Vec<GemAddress>) {
+    let mut col_ref = board.find_by_address(0, 0).unwrap();
+    while col_ref.bottom.is_some() {
+        let mut row_ref = col_ref;
+        while row_ref.right.is_some() {
+            println!("{}", row_ref.color.to_string());
+            row_ref = row_ref.right.unwrap();
+        }
+        col_ref = col_ref.bottom.unwrap();
+    }
 }
