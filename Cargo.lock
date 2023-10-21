@@ -12,6 +12,7 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 name = "gem-board"
 version = "0.1.0"
 dependencies = [
+ "init_with",
  "rand",
 ]
 
@@ -25,6 +26,12 @@ dependencies = [
  "libc",
  "wasi",
 ]
+
+[[package]]
+name = "init_with"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0175f63815ce00183bf755155ad0cb48c65226c5d17a724e369c25418d2b7699"
 
 [[package]]
 name = "libc"
