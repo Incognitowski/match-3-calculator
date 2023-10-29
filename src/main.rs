@@ -1,9 +1,7 @@
 use crate::gem::Gem;
-use crate::gem_color::GemColor;
 use crate::gem_combination::GemCombination;
 use init_with::InitWith;
 use std::collections::HashSet;
-use std::fmt::{Display, Formatter};
 use std::time::Instant;
 
 mod gem;
@@ -97,9 +95,9 @@ fn find_combinations(board: &Board, skip_transposition: bool) -> Vec<GemCombinat
 }
 
 fn combinations_should_be_merged(a: &GemCombination, b: &GemCombination) -> bool {
-    // if a.color != b.color {
-    //     return false;
-    // }
+    if a.color != b.color {
+        return false;
+    }
     for a_coord in &a.combinations {
         for b_coord in &b.combinations {
             if a_coord == b_coord {
