@@ -32,21 +32,4 @@ fn main() {
     }
     let elapsed = started_at.elapsed();
     println!("Time to find possible combinations: {:.2?}", elapsed);
-
-    let board_str = r#"
-            🟨🟦🟨🟦🟨🟦🟨🟦
-            🟨🟦🟨🟦🟨🟦🟨🟦
-            🟩🟥🟩🟥🟩🟥🟩🟥
-            🟩🟥🟩🟥🟩🟥🟩🟥
-            🟪🟦🟪🟦🟪🟦🟪🟦
-            🟪🟦🟪🟦🟪🟦🟪🟦
-            🟨🟩🟨🟩🟨🟩🟨🟩
-            🟨🟩🟨🟩🟨🟩🟨🟩
-        "#;
-
-    let board = board_from_string(board_str);
-    println!("--------------");
-    board.print();
-    println!("--------------");
-    board.transpose().print();
 }
