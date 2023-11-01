@@ -1,7 +1,7 @@
 use gem_board_lib::board::Board;
 use gem_board_lib::gem_combination::GemCombination;
 use std::time::Instant;
-use gem_board_lib::utilities::board_from_string;
+
 
 fn print_found_combinations(combinations: &Vec<GemCombination>) {
     for gem_combination in combinations {
