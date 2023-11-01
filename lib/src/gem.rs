@@ -7,10 +7,10 @@ pub struct Gem {
 }
 
 impl Gem {
-    pub(crate) fn new(color: GemColor) -> Gem {
+    pub fn new(color: GemColor) -> Gem {
         Gem { color }
     }
-    pub(crate) fn random() -> Gem {
+    pub fn random() -> Gem {
         Gem::new(GemColor::random())
     }
 }

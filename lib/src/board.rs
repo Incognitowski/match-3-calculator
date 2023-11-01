@@ -60,25 +60,25 @@ fn contains_possible_combinations(board: &Board) -> bool {
             let mut target_gems: Vec<&Gem> = vec![];
             if iter > 0 {
                 if row_num > 0 {
-                    target_gems.push(&board.board[iter - 1][row_num - 1]);
+                    target_gems.push(&board.board[row_num - 1][iter - 1]);
                 }
                 if row_num < BOARD_SIZE - 1 {
-                    target_gems.push(&board.board[iter - 1][row_num + 1]);
+                    target_gems.push(&board.board[row_num + 1][iter - 1]);
                 }
             }
             if iter > 1 {
-                target_gems.push(&board.board[iter - 2][row_num]);
+                target_gems.push(&board.board[row_num][iter - 2]);
             }
             if iter < BOARD_SIZE - 3 {
                 if row_num > 0 {
-                    target_gems.push(&board.board[iter + 2][row_num - 1]);
+                    target_gems.push(&board.board[row_num - 1][iter + 2]);
                 }
                 if row_num < BOARD_SIZE - 1 {
-                    target_gems.push(&board.board[iter + 2][row_num + 1]);
+                    target_gems.push(&board.board[row_num + 1][iter + 2]);
                 }
             }
             if iter < BOARD_SIZE - 4 {
-                target_gems.push(&board.board[iter + 3][row_num]);
+                target_gems.push(&board.board[row_num][iter + 3]);
             }
             let color_occurrence = count_color_occurrence(&target_gems, target_color);
             if color_occurrence > 0 {

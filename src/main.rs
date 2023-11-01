@@ -1,14 +1,7 @@
-use crate::gem_combination::GemCombination;
-
-use crate::board::Board;
+use gem_board_lib::board::Board;
+use gem_board_lib::gem_combination::GemCombination;
 use std::time::Instant;
-
-mod board;
-mod constants;
-mod gem;
-mod gem_color;
-mod gem_combination;
-mod utilities;
+use gem_board_lib::utilities::board_from_string;
 
 fn print_found_combinations(combinations: &Vec<GemCombination>) {
     for gem_combination in combinations {
@@ -39,4 +32,21 @@ fn main() {
     }
     let elapsed = started_at.elapsed();
     println!("Time to find possible combinations: {:.2?}", elapsed);
+
+    let board_str = r#"
+            🟨🟦🟨🟦🟨🟦🟨🟦
+            🟨🟦🟨🟦🟨🟦🟨🟦
+            🟩🟥🟩🟥🟩🟥🟩🟥
+            🟩🟥🟩🟥🟩🟥🟩🟥
+            🟪🟦🟪🟦🟪🟦🟪🟦
+            🟪🟦🟪🟦🟪🟦🟪🟦
+            🟨🟩🟨🟩🟨🟩🟨🟩
+            🟨🟩🟨🟩🟨🟩🟨🟩
+        "#;
+
+    let board = board_from_string(board_str);
+    println!("--------------");
+    board.print();
+    println!("--------------");
+    board.transpose().print();
 }

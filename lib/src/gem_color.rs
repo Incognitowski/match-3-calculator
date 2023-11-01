@@ -11,7 +11,7 @@ pub enum GemColor {
 }
 
 impl GemColor {
-    pub(crate) fn random() -> GemColor {
+    pub fn random() -> GemColor {
         let rng = rand::thread_rng().gen_range(0..5);
         match rng {
             0 => GemColor::Blue,
@@ -22,7 +22,7 @@ impl GemColor {
         }
     }
 
-    pub(crate) fn from_char(gem_char: char) -> GemColor {
+    pub fn from_char(gem_char: char) -> GemColor {
         match gem_char {
             '🟦' => GemColor::Blue,
             '🟩' => GemColor::Green,

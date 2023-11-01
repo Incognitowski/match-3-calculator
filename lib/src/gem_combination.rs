@@ -1,7 +1,7 @@
+use crate::constants::MIN_COMB_SIZE;
 use crate::gem::Gem;
 use crate::gem_color::GemColor;
 use std::fmt::{Display, Formatter};
-use crate::constants::MIN_COMB_SIZE;
 
 #[derive(Clone, PartialEq)]
 pub struct GemCombination {
@@ -10,22 +10,19 @@ pub struct GemCombination {
 }
 
 impl GemCombination {
-    pub(crate) fn new(color: &GemColor) -> Self {
+    pub fn new(color: &GemColor) -> Self {
         Self {
             color: *color,
             combinations: vec![],
         }
     }
-    pub(crate) fn new_with_combinations(
-        color: &GemColor,
-        combinations: Vec<(usize, usize)>,
-    ) -> Self {
+    pub fn new_with_combinations(color: &GemColor, combinations: Vec<(usize, usize)>) -> Self {
         Self {
             color: *color,
             combinations,
         }
     }
-    pub(crate) fn from_match(
+    pub fn from_match(
         gem_match: &[Gem],
         row: usize,
         starting_column: usize,
