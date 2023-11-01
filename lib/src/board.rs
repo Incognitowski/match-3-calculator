@@ -86,6 +86,22 @@ fn contains_possible_combinations(board: &Board) -> bool {
             }
         }
     }
+    for (row_num, row) in board.board.iter().enumerate() {
+        for (iter, gems) in row.windows(MIN_COMB_SIZE).enumerate() {
+            let mut target_gems: Vec<&Gem> = vec![];
+            if row_num > 0 {
+                target_gems.push(&board.board[row_num - 1][iter + 1])
+            }
+            if row_num < BOARD_SIZE - 2 {
+                target_gems.push(&board.board[row_num + 1][iter + 1])
+            }
+            let target_color = &gems.first().unwrap().color;
+            let color_occurrence = count_color_occurrence(&target_gems, target_color);
+            if color_occurrence > 0 {
+                return true;
+            }
+        }
+    }
     false
 }
 

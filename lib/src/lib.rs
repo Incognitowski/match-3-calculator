@@ -142,4 +142,21 @@ mod tests {
         assert!(board.find_combinations().is_empty());
         assert!(board.contains_possible_combinations());
     }
+
+    #[test]
+    fn should_find_zero_combinations_and_possible_combinations_v6() {
+        let board_str = r#"
+            🟨🟦🟨🟦🟨🟦🟨🟦
+            🟨🟦🟨🟦🟨🟦🟨🟦
+            🟩🟥🟩🟥🟩🟥🟩🟥
+            🟩🟥🟩🟥🟩🟥🟩🟥
+            🟪🟦🟪🟨🟦🟨🟪🟦
+            🟪🟦🟪🟦🟪🟦🟪🟦
+            🟨🟥🟥🟩🟨🟩🟥🟩
+            🟨🟥🟥🟩🟨🟩🟨🟩
+        "#;
+        let board = board_from_string(board_str);
+        assert!(board.find_combinations().is_empty());
+        assert!(board.contains_possible_combinations());
+    }
 }
