@@ -21,6 +21,17 @@ impl GemColor {
             _ => GemColor::Purple,
         }
     }
+
+    pub(crate) fn from_char(gem_char: char) -> GemColor {
+        match gem_char {
+            '🟦' => GemColor::Blue,
+            '🟩' => GemColor::Green,
+            '🟥' => GemColor::Red,
+            '🟨' => GemColor::Yellow,
+            '🟪' => GemColor::Purple,
+            _ => panic!("{} was given instead of valid color char.", gem_char),
+        }
+    }
 }
 
 impl Display for GemColor {

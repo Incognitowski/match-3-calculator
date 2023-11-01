@@ -1,7 +1,7 @@
 use crate::gem::Gem;
 use crate::gem_color::GemColor;
-use crate::MIN_COMB_SIZE_U;
 use std::fmt::{Display, Formatter};
+use crate::constants::MIN_COMB_SIZE;
 
 #[derive(Clone, PartialEq)]
 pub struct GemCombination {
@@ -33,7 +33,7 @@ impl GemCombination {
     ) -> Self {
         let color = gem_match.first().unwrap().color;
         let mut combination = GemCombination::new(&color);
-        for col_num in 0..MIN_COMB_SIZE_U {
+        for col_num in 0..MIN_COMB_SIZE {
             if invert_coordinates {
                 combination
                     .combinations
