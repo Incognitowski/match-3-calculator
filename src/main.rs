@@ -2,7 +2,6 @@ use gem_board_lib::board::Board;
 use gem_board_lib::gem_combination::GemCombination;
 use std::time::Instant;
 
-
 fn print_found_combinations(combinations: &Vec<GemCombination>) {
     for gem_combination in combinations {
         println!("{}", gem_combination)
